@@ -1,0 +1,108 @@
+{
+  "resultados": {
+    "10": {
+      "n": 10,
+      "tiempo_medio": 21.113,
+      "tiempo_max": 29.077,
+      "exitosas": 10,
+      "errores": {},
+      "filas_guardadas": 10,
+      "telegram": {
+        "mensajes_enviados": 8,
+        "mensajes_fallidos": 2,
+        "solicitudes_notificadas": 8
+      },
+      "duracion_s": 32.11,
+      "ocupacion": {
+        "api": 90.5,
+        "excel": 90.2,
+        "telegram": 85.2
+      }
+    },
+    "25": {
+      "n": 25,
+      "tiempo_medio": 32.388,
+      "tiempo_max": 57.192,
+      "exitosas": 25,
+      "errores": {},
+      "filas_guardadas": 25,
+      "telegram": {
+        "mensajes_enviados": 11,
+        "mensajes_fallidos": 14,
+        "solicitudes_notificadas": 11
+      },
+      "duracion_s": 58.34,
+      "ocupacion": {
+        "api": 98.0,
+        "excel": 97.5,
+        "telegram": 96.9
+      }
+    },
+    "50": {
+      "n": 50,
+      "tiempo_medio": 67.944,
+      "tiempo_max": 121.1,
+      "exitosas": 47,
+      "errores": {
+        "ReadTimeout": 3
+      },
+      "filas_guardadas": 50,
+      "telegram": {
+        "mensajes_enviados": 15,
+        "mensajes_fallidos": 35,
+        "solicitudes_notificadas": 15
+      },
+      "duracion_s": 125.23,
+      "ocupacion": {
+        "api": 99.0,
+        "excel": 98.6,
+        "telegram": 98.5
+      }
+    },
+    "100": {
+      "n": 100,
+      "tiempo_medio": 94.849,
+      "tiempo_max": 120.699,
+      "exitosas": 45,
+      "errores": {
+        "ReadTimeout": 55
+      },
+      "filas_guardadas": 100,
+      "telegram": {
+        "mensajes_enviados": 9,
+        "mensajes_fallidos": 91,
+        "solicitudes_notificadas": 9
+      },
+      "duracion_s": 253.52,
+      "ocupacion": {
+        "api": 99.3,
+        "excel": 98.9,
+        "telegram": 98.3
+      }
+    },
+    "1000": {
+      "n": 1000,
+      "tiempo_medio": 26.854,
+      "tiempo_max": 123.469,
+      "exitosas": 46,
+      "errores": {
+        "ReadTimeout": 157,
+        "ConnectError": 797
+      },
+      "filas_guardadas": 203,
+      "telegram": {
+        "mensajes_enviados": 8,
+        "mensajes_fallidos": 195,
+        "solicitudes_notificadas": 8
+      },
+      "duracion_s": 537.09,
+      "ocupacion": {
+        "api": 99.4,
+        "excel": 98.9,
+        "telegram": 99.2
+      }
+    }
+  },
+  "url": "http://127.0.0.1:8000",
+  "fecha": "2026-10-06T16:40:50"
+}

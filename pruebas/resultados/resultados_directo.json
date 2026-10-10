@@ -1,0 +1,100 @@
+{
+  "resultados": {
+    "10": {
+      "n": 10,
+      "tiempo_medio": 16.649,
+      "tiempo_max": 23.769,
+      "exitosas": 10,
+      "errores": {},
+      "filas_guardadas": 10,
+      "numeros": [
+        1,
+        10
+      ],
+      "telegram": {
+        "mensajes_enviados": 9,
+        "mensajes_fallidos": 1,
+        "solicitudes_notificadas": 9
+      },
+      "duracion_s": 27.63,
+      "ocupacion": {
+        "api": 86.0,
+        "excel": 85.7,
+        "telegram": 88.4
+      }
+    },
+    "25": {
+      "n": 25,
+      "tiempo_medio": 30.84,
+      "tiempo_max": 49.638,
+      "exitosas": 25,
+      "errores": {},
+      "filas_guardadas": 25,
+      "numeros": [
+        11,
+        35
+      ],
+      "telegram": {
+        "mensajes_enviados": 10,
+        "mensajes_fallidos": 15,
+        "solicitudes_notificadas": 10
+      },
+      "duracion_s": 50.57,
+      "ocupacion": {
+        "api": 98.1,
+        "excel": 97.7,
+        "telegram": 94.3
+      }
+    },
+    "50": {
+      "n": 50,
+      "tiempo_medio": 56.814,
+      "tiempo_max": 109.437,
+      "exitosas": 50,
+      "errores": {},
+      "filas_guardadas": 50,
+      "numeros": [
+        36,
+        85
+      ],
+      "telegram": {
+        "mensajes_enviados": 14,
+        "mensajes_fallidos": 36,
+        "solicitudes_notificadas": 14
+      },
+      "duracion_s": 110.25,
+      "ocupacion": {
+        "api": 99.3,
+        "excel": 98.8,
+        "telegram": 98.4
+      }
+    },
+    "100": {
+      "n": 100,
+      "tiempo_medio": 89.341,
+      "tiempo_max": 120.879,
+      "exitosas": 55,
+      "errores": {
+        "ReadTimeout": 45
+      },
+      "filas_guardadas": 100,
+      "numeros": [
+        86,
+        185
+      ],
+      "telegram": {
+        "mensajes_enviados": 20,
+        "mensajes_fallidos": 80,
+        "solicitudes_notificadas": 20
+      },
+      "duracion_s": 226.37,
+      "ocupacion": {
+        "api": 99.5,
+        "excel": 99.1,
+        "telegram": 99.1
+      }
+    }
+  },
+  "url": "http://127.0.0.1:8000",
+  "fecha": "2026-10-09T22:44:41"
+}

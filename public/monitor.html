@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor de Carga</title>
+<style>
+  :root {
+    --fondo: #0b1226; --panel: #141f3b; --tarjeta: #233050; --pista: #2f3b5c;
+    --texto: #eef2fa; --suave: #b4bdd3; --verde: #4cc07a; --ambar: #f2b43c; --rojo: #ef5b5b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--texto); font-family: "Segoe UI", system-ui, sans-serif; padding: 24px 16px; }
+  main { max-width: 1120px; margin: 0 auto; display: grid; gap: 18px; }
+  header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 8px; }
+  h1 { margin: 0; font-size: 1.6rem; }
+  .sub { color: var(--suave); margin: 4px 0 0; }
+  .reloj { font-variant-numeric: tabular-nums; font-size: 1.3rem; color: var(--suave); }
+  .estado { border-radius: 14px; padding: 16px 20px; font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 12px; }
+  .estado::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: currentColor; flex: none; }
+  .estado.ok { background: #1f8a4c33; color: var(--verde); }
+  .estado.warn { background: #9a6a1233; color: var(--ambar); }
+  .estado.mal { background: #a8343433; color: var(--rojo); }
+  .panel { background: var(--panel); border-radius: 18px; padding: 22px 26px; }
+  .panel h2 { margin: 0 0 16px; font-weight: 500; font-size: 1.2rem; }
+  .tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .tarjeta { background: var(--tarjeta); border-radius: 14px; padding: 16px; }
+  .tarjeta b { display: block; font-size: 1.9rem; font-variant-numeric: tabular-nums; }
+  .tarjeta span { color: var(--suave); }
+  .barras { display: grid; grid-template-columns: 140px 1fr 60px; gap: 12px 16px; align-items: center; }
+  .pista { background: var(--pista); height: 20px; border-radius: 10px; overflow: hidden; }
+  .relleno { height: 100%; border-radius: 10px; transition: width .3s; }
+  .pct { text-align: right; font-variant-numeric: tabular-nums; }
+  .nota { color: var(--suave); font-size: .9rem; margin: 14px 0 0; }
+  @media (max-width: 560px) { .barras { grid-template-columns: 96px 1fr 48px; } .panel { padding: 18px 16px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Monitor de la prueba de carga</h1>
+      <p class="sub" id="modo">Conectando con la API…</p>
+    </div>
+    <div class="reloj" id="reloj"></div>
+  </header>
+
+  <div class="estado warn" id="estado">Esperando la primera respuesta del servidor…</div>
+
+  <section class="panel">
+    <h2>Actividad</h2>
+    <div class="tarjetas">
+      <div class="tarjeta"><b id="atendidas">–</b><span>Peticiones atendidas por la API</span></div>
+      <div class="tarjeta"><b id="enCurso">–</b><span>Peticiones en curso</span></div>
+      <div class="tarjeta"><b id="colaExcel">–</b><span>Pendientes de guardar en Excel</span></div>
+      <div class="tarjeta"><b id="colaTelegram">–</b><span>Notificaciones pendientes</span></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Telegram</h2>
+    <div class="tarjetas">
+      <div class="tarjeta"><b id="notificadas">–</b><span>Solicitudes notificadas</span></div>
+      <div class="tarjeta"><b id="enviados">–</b><span>Mensajes enviados</span></div>
+      <div class="tarjeta"><b id="fallidos">–</b><span>Mensajes fallidos</span></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Ocupación en los últimos segundos</h2>
+    <div class="barras" id="barras"></div>
+    <p class="nota">Porcentaje del tiempo reciente en que cada componente tuvo trabajo en curso. Cerca del 100 % indica un cuello de botella.</p>
+  </section>
+</main>
+
+<script>
+const COMPONENTES = [['api', 'API FastAPI'], ['excel', 'Excel (Drive)'], ['telegram', 'Telegram']];
+const VENTANA = 5; // segundos de servidor usados para la ocupación reciente
+const muestras = [];
+let ultimaRespuesta = null;
+let esperando = false;
+
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('es');
+
+function colorBarra(p) { return p >= 85 ? 'var(--rojo)' : p >= 50 ? 'var(--ambar)' : 'var(--verde)'; }
+
+function ocupacionReciente() {
+  const actual = muestras[muestras.length - 1];
+  const previa = [...muestras].reverse().find(m => actual.metricas.ahora - m.metricas.ahora >= VENTANA) || muestras[0];
+  const dt = actual.metricas.ahora - previa.metricas.ahora;
+  return Object.fromEntries(COMPONENTES.map(([c]) => {
+    if (dt <= 0) return [c, actual.metricas[c].en_curso ? 100 : 0];
+    return [c, Math.min(100, 100 * (actual.metricas[c].ocupado_s - previa.metricas[c].ocupado_s) / dt)];
+  }));
+}
+
+function render(s) {
+  $('modo').textContent = `Modo de guardado: ${s.modo} · datos de /salud`;
+  $('atendidas').textContent = fmt(s.metricas.api.operaciones);
+  $('enCurso').textContent = fmt(s.metricas.api.en_curso);
+  $('colaExcel').textContent = fmt(s.pendientes_excel);
+  $('colaTelegram').textContent = fmt(s.pendientes_telegram);
+  $('notificadas').textContent = fmt(s.telegram.solicitudes_notificadas);
+  $('enviados').textContent = fmt(s.telegram.mensajes_enviados);
+  $('fallidos').textContent = fmt(s.telegram.mensajes_fallidos);
+
+  const ocupacion = ocupacionReciente();
+  const barras = $('barras');
+  barras.replaceChildren();
+  for (const [c, nombre] of COMPONENTES) {
+    const p = ocupacion[c];
+    const etiqueta = document.createElement('div');
+    etiqueta.textContent = nombre;
+    const pista = document.createElement('div');
+    pista.className = 'pista';
+    const relleno = document.createElement('div');
+    relleno.className = 'relleno';
+    relleno.style.width = `${Math.max(1, p)}%`;
+    relleno.style.background = colorBarra(p);
+    pista.appendChild(relleno);
+    const valor = document.createElement('div');
+    valor.className = 'pct';
+    valor.textContent = `${Math.round(p)} %`;
+    barras.append(etiqueta, pista, valor);
+  }
+}
+
+async function consultar() {
+  if (esperando) return;
+  esperando = true;
+  try {
+    const s = await (await fetch('/salud', { cache: 'no-store' })).json();
+    ultimaRespuesta = Date.now();
+    muestras.push(s);
+    if (muestras.length > 120) muestras.shift();
+    render(s);
+  } catch (e) {
+    console.error('Error consultando /salud:', e);
+  } finally {
+    esperando = false;
+  }
+}
+
+function actualizarEstado() {
+  $('reloj').textContent = new Date().toLocaleTimeString('es');
+  const estado = $('estado');
+  if (ultimaRespuesta === null) return;
+  const segundos = (Date.now() - ultimaRespuesta) / 1000;
+  const ultima = muestras[muestras.length - 1];
+  if (segundos > 3) {
+    estado.className = 'estado mal';
+    estado.textContent = `Servidor bloqueado: sin responder hace ${Math.floor(segundos)} s`;
+  } else if (ultima.trabajo_pendiente) {
+    estado.className = 'estado warn';
+    estado.textContent = 'Servidor respondiendo · procesando trabajo';
+  } else {
+    estado.className = 'estado ok';
+    estado.textContent = 'Servidor respondiendo · sin trabajo pendiente';
+  }
+}
+
+setInterval(consultar, 1000);
+setInterval(actualizarEstado, 250);
+consultar();
+</script>
+</body>
+</html>

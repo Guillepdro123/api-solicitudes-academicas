@@ -1,0 +1,26 @@
+# Configuración para publicar en Render (New → Blueprint, o úsala como guía para un Web Service)
+services:
+  - type: web
+    name: api-solicitudes-academicas
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # Un solo proceso: la cola de escritura vive en memoria
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /salud
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: MODO_GUARDADO
+        value: cola
+      - key: ZONA_HORARIA
+        value: America/Bogota
+      # credenciales.json se sube como «Secret File» en Render y queda en esta ruta
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/secrets/credenciales.json
+      - key: GOOGLE_DRIVE_FILE_ID
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false

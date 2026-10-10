@@ -1,0 +1,82 @@
+{
+  "resultados": {
+    "10": {
+      "n": 10,
+      "tiempo_medio": 0.115,
+      "tiempo_max": 0.119,
+      "exitosas": 10,
+      "errores": {},
+      "filas_guardadas": 10,
+      "telegram": {
+        "mensajes_enviados": 2,
+        "mensajes_fallidos": 0,
+        "solicitudes_notificadas": 10
+      },
+      "duracion_s": 8.78,
+      "ocupacion": {
+        "api": 1.0,
+        "excel": 99.7,
+        "telegram": 13.5
+      }
+    },
+    "25": {
+      "n": 25,
+      "tiempo_medio": 0.168,
+      "tiempo_max": 0.229,
+      "exitosas": 25,
+      "errores": {},
+      "filas_guardadas": 25,
+      "telegram": {
+        "mensajes_enviados": 4,
+        "mensajes_fallidos": 0,
+        "solicitudes_notificadas": 25
+      },
+      "duracion_s": 5.4,
+      "ocupacion": {
+        "api": 2.5,
+        "excel": 98.9,
+        "telegram": 37.6
+      }
+    },
+    "50": {
+      "n": 50,
+      "tiempo_medio": 0.313,
+      "tiempo_max": 0.551,
+      "exitosas": 50,
+      "errores": {},
+      "filas_guardadas": 50,
+      "telegram": {
+        "mensajes_enviados": 6,
+        "mensajes_fallidos": 0,
+        "solicitudes_notificadas": 50
+      },
+      "duracion_s": 7.29,
+      "ocupacion": {
+        "api": 4.9,
+        "excel": 55.0,
+        "telegram": 29.4
+      }
+    },
+    "100": {
+      "n": 100,
+      "tiempo_medio": 0.769,
+      "tiempo_max": 1.415,
+      "exitosas": 100,
+      "errores": {},
+      "filas_guardadas": 100,
+      "telegram": {
+        "mensajes_enviados": 11,
+        "mensajes_fallidos": 0,
+        "solicitudes_notificadas": 100
+      },
+      "duracion_s": 14.12,
+      "ocupacion": {
+        "api": 4.9,
+        "excel": 40.6,
+        "telegram": 27.1
+      }
+    }
+  },
+  "url": "http://127.0.0.1:8000",
+  "fecha": "2026-10-06T15:38:38"
+}

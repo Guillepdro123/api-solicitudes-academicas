@@ -1,0 +1,9 @@
+/* 
+  Estilos adicionales a los provistos por Tailwind CSS (si fueran necesarios).
+  Por ahora, Tailwind a través de CDN se encarga de todo el diseño base y el responsivo.
+*/
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+

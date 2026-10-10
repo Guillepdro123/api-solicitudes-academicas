@@ -1,0 +1,98 @@
+{
+  "resultados": {
+    "10": {
+      "n": 10,
+      "tiempo_medio": 0.052,
+      "tiempo_max": 0.055,
+      "exitosas": 10,
+      "errores": {},
+      "filas_guardadas": 10,
+      "numeros": [
+        186,
+        195
+      ],
+      "telegram": {
+        "mensajes_enviados": 10,
+        "mensajes_fallidos": 0,
+        "solicitudes_notificadas": 10
+      },
+      "duracion_s": 13.76,
+      "ocupacion": {
+        "api": 0.2,
+        "excel": 37.9,
+        "telegram": 33.8
+      }
+    },
+    "25": {
+      "n": 25,
+      "tiempo_medio": 0.148,
+      "tiempo_max": 0.206,
+      "exitosas": 25,
+      "errores": {},
+      "filas_guardadas": 25,
+      "numeros": [
+        196,
+        220
+      ],
+      "telegram": {
+        "mensajes_enviados": 25,
+        "mensajes_fallidos": 0,
+        "solicitudes_notificadas": 25
+      },
+      "duracion_s": 33.22,
+      "ocupacion": {
+        "api": 0.4,
+        "excel": 11.1,
+        "telegram": 26.9
+      }
+    },
+    "50": {
+      "n": 50,
+      "tiempo_medio": 0.308,
+      "tiempo_max": 0.534,
+      "exitosas": 50,
+      "errores": {},
+      "filas_guardadas": 50,
+      "numeros": [
+        221,
+        270
+      ],
+      "telegram": {
+        "mensajes_enviados": 50,
+        "mensajes_fallidos": 0,
+        "solicitudes_notificadas": 50
+      },
+      "duracion_s": 66.31,
+      "ocupacion": {
+        "api": 0.5,
+        "excel": 5.5,
+        "telegram": 25.3
+      }
+    },
+    "100": {
+      "n": 100,
+      "tiempo_medio": 0.662,
+      "tiempo_max": 1.175,
+      "exitosas": 100,
+      "errores": {},
+      "filas_guardadas": 100,
+      "numeros": [
+        271,
+        370
+      ],
+      "telegram": {
+        "mensajes_enviados": 100,
+        "mensajes_fallidos": 0,
+        "solicitudes_notificadas": 100
+      },
+      "duracion_s": 135.15,
+      "ocupacion": {
+        "api": 0.5,
+        "excel": 5.6,
+        "telegram": 26.0
+      }
+    }
+  },
+  "url": "http://127.0.0.1:8000",
+  "fecha": "2026-10-09T22:51:15"
+}

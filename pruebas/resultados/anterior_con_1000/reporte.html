@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resultados de Carga</title>
+<style>
+  :root {
+    --fondo: #0b1226;
+    --panel: #141f3b;
+    --tarjeta: #233050;
+    --pista: #2f3b5c;
+    --texto: #eef2fa;
+    --suave: #b4bdd3;
+    --borde: #e8ecf5;
+    --verde: #4cc07a;
+    --ambar: #f2b43c;
+    --rojo: #ef5b5b;
+    --ok-fondo: #1f8a4c;
+    --warn-fondo: #9a6a12;
+    --mal-fondo: #a83434;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    padding: 24px 16px 48px;
+  }
+  main { max-width: 1120px; margin: 0 auto; display: grid; gap: 24px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  .sub { color: var(--suave); margin: 0; font-size: .95rem; }
+  .panel { background: var(--panel); border-radius: 18px; padding: 24px 28px; }
+  .panel h2 { font-weight: 500; font-size: 1.35rem; margin: 0 0 18px; }
+  .botones { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  .botones button {
+    font: inherit; font-size: 1.05rem; color: var(--texto); background: transparent;
+    border: 2px solid var(--borde); border-radius: 10px; padding: 10px 24px; cursor: pointer;
+  }
+  .botones button[aria-pressed="true"] { background: var(--borde); color: #1a2440; }
+  .botones.modos button { font-size: .95rem; padding: 6px 16px; border-width: 1.5px; }
+  .tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .tarjeta { background: var(--tarjeta); border-radius: 14px; padding: 18px 16px; }
+  .tarjeta b { display: block; font-size: 2rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .tarjeta span { color: var(--suave); font-size: 1.05rem; }
+  .tarjeta small { display: block; color: var(--suave); margin-top: 4px; font-size: .85rem; }
+  .barras { display: grid; grid-template-columns: 150px 1fr 56px; align-items: center; gap: 12px 16px; margin-bottom: 22px; }
+  .barras .nombre { font-size: 1.1rem; }
+  .pista { background: var(--pista); height: 20px; border-radius: 10px; overflow: hidden; }
+  .relleno { height: 100%; border-radius: 10px; transition: width .4s ease; }
+  .pct { text-align: right; font-variant-numeric: tabular-nums; }
+  .mensaje { border-radius: 14px; padding: 18px; font-weight: 600; font-size: 1.05rem; line-height: 1.5; }
+  .mensaje.ok { background: var(--ok-fondo); }
+  .mensaje.warn { background: var(--warn-fondo); }
+  .mensaje.mal { background: var(--mal-fondo); }
+  .nota { color: var(--suave); margin: 14px 0 0; font-size: .95rem; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: .95rem; }
+  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--pista); vertical-align: top; }
+  th { color: var(--suave); font-weight: 500; }
+  .tabla { overflow-x: auto; }
+  .leyenda { display: flex; gap: 20px; margin: -6px 0 12px; color: var(--suave); font-size: .95rem; }
+  .leyenda i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  #grafico { width: 100%; height: auto; display: block; }
+  #grafico text { fill: var(--suave); font-size: 13px; font-family: inherit; }
+  #grafico .valor { fill: var(--texto); font-weight: 600; }
+  @media (max-width: 560px) {
+    .panel { padding: 18px 16px; }
+    .barras { grid-template-columns: 96px 1fr 48px; }
+    .botones button { padding: 8px 14px; font-size: .95rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Resultados de las pruebas de carga</h1>
+    <p class="sub" id="origen"></p>
+  </header>
+
+  <section class="panel" id="panel-resultados">
+    <h2>Resultados medidos</h2>
+    <div class="botones modos" id="modos"></div>
+    <div class="botones" id="cantidades"></div>
+    <div class="tarjetas">
+      <div class="tarjeta"><b id="t-medio"></b><span>Tiempo medio de respuesta</span><small id="t-max"></small></div>
+      <div class="tarjeta"><b id="exitosas"></b><span>Solicitudes exitosas</span><small id="excel"></small></div>
+      <div class="tarjeta"><b id="errores"></b><span>Con error</span><small id="codigos"></small></div>
+    </div>
+    <div class="barras" id="barras"></div>
+    <div class="mensaje" id="mensaje"></div>
+    <p class="nota">Las barras muestran la ocupación de cada componente: el porcentaje del tiempo de la prueba en que estuvo trabajando. Cerca del 100 % indica un cuello de botella.</p>
+  </section>
+
+  <section class="panel" id="panel-grafico">
+    <h2>Tiempo medio de respuesta por cantidad de solicitudes</h2>
+    <div class="leyenda" id="leyenda"></div>
+    <svg id="grafico" role="img" aria-label="Tiempo medio de respuesta por cantidad de solicitudes y modo"></svg>
+  </section>
+
+  <section class="panel" id="panel-tabla">
+    <h2>Comparación antes y después de la mejora</h2>
+    <div class="tabla"><table id="comparacion"></table></div>
+  </section>
+</main>
+
+<script>
+const DATOS = {"cola": {"resultados": {"10": {"n": 10, "tiempo_medio": 0.141, "tiempo_max": 0.146, "exitosas": 10, "errores": {}, "filas_guardadas": 10, "telegram": {"mensajes_enviados": 2, "mensajes_fallidos": 0, "solicitudes_notificadas": 10}, "duracion_s": 10.71, "ocupacion": {"api": 1.1, "excel": 99.7, "telegram": 10.9}}, "25": {"n": 25, "tiempo_medio": 0.182, "tiempo_max": 0.251, "exitosas": 25, "errores": {}, "filas_guardadas": 25, "telegram": {"mensajes_enviados": 4, "mensajes_fallidos": 0, "solicitudes_notificadas": 25}, "duracion_s": 6.01, "ocupacion": {"api": 2.5, "excel": 66.8, "telegram": 48.6}}, "50": {"n": 50, "tiempo_medio": 0.369, "tiempo_max": 0.698, "exitosas": 50, "errores": {}, "filas_guardadas": 50, "telegram": {"mensajes_enviados": 6, "mensajes_fallidos": 0, "solicitudes_notificadas": 50}, "duracion_s": 7.51, "ocupacion": {"api": 5.4, "excel": 56.9, "telegram": 31.4}}, "100": {"n": 100, "tiempo_medio": 0.85, "tiempo_max": 1.573, "exitosas": 100, "errores": {}, "filas_guardadas": 100, "telegram": {"mensajes_enviados": 11, "mensajes_fallidos": 0, "solicitudes_notificadas": 100}, "duracion_s": 15.29, "ocupacion": {"api": 6.0, "excel": 42.7, "telegram": 32.6}}, "1000": {"n": 1000, "tiempo_medio": 6.07, "tiempo_max": 12.147, "exitosas": 1000, "errores": {}, "filas_guardadas": 1000, "telegram": {"mensajes_enviados": 101, "mensajes_fallidos": 0, "solicitudes_notificadas": 1000}, "duracion_s": 285.84, "ocupacion": {"api": 2.5, "excel": 21.8, "telegram": 16.3}}}, "url": "http://127.0.0.1:8000", "fecha": "2026-10-06T16:46:31"}, "directo": {"resultados": {"10": {"n": 10, "tiempo_medio": 21.113, "tiempo_max": 29.077, "exitosas": 10, "errores": {}, "filas_guardadas": 10, "telegram": {"mensajes_enviados": 8, "mensajes_fallidos": 2, "solicitudes_notificadas": 8}, "duracion_s": 32.11, "ocupacion": {"api": 90.5, "excel": 90.2, "telegram": 85.2}}, "25": {"n": 25, "tiempo_medio": 32.388, "tiempo_max": 57.192, "exitosas": 25, "errores": {}, "filas_guardadas": 25, "telegram": {"mensajes_enviados": 11, "mensajes_fallidos": 14, "solicitudes_notificadas": 11}, "duracion_s": 58.34, "ocupacion": {"api": 98.0, "excel": 97.5, "telegram": 96.9}}, "50": {"n": 50, "tiempo_medio": 67.944, "tiempo_max": 121.1, "exitosas": 47, "errores": {"ReadTimeout": 3}, "filas_guardadas": 50, "telegram": {"mensajes_enviados": 15, "mensajes_fallidos": 35, "solicitudes_notificadas": 15}, "duracion_s": 125.23, "ocupacion": {"api": 99.0, "excel": 98.6, "telegram": 98.5}}, "100": {"n": 100, "tiempo_medio": 94.849, "tiempo_max": 120.699, "exitosas": 45, "errores": {"ReadTimeout": 55}, "filas_guardadas": 100, "telegram": {"mensajes_enviados": 9, "mensajes_fallidos": 91, "solicitudes_notificadas": 9}, "duracion_s": 253.52, "ocupacion": {"api": 99.3, "excel": 98.9, "telegram": 98.3}}, "1000": {"n": 1000, "tiempo_medio": 26.854, "tiempo_max": 123.469, "exitosas": 46, "errores": {"ReadTimeout": 157, "ConnectError": 797}, "filas_guardadas": 203, "telegram": {"mensajes_enviados": 8, "mensajes_fallidos": 195, "solicitudes_notificadas": 8}, "duracion_s": 537.09, "ocupacion": {"api": 99.4, "excel": 98.9, "telegram": 99.2}}}, "url": "http://127.0.0.1:8000", "fecha": "2026-10-06T16:40:50"}};
+
+const NOMBRES_MODO = { directo: 'Antes · modo directo', cola: 'Después · modo cola' };
+const COMPONENTES = [['api', 'API FastAPI'], ['excel', 'Excel (Drive)'], ['telegram', 'Telegram']];
+const num = (v, d = 1) => v.toLocaleString('es', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+const modos = Object.keys(DATOS).sort((a, b) => (a === 'directo' ? -1 : 1));
+let modo = modos[0];
+let cantidad = null;
+
+function cantidadesDe(m) {
+  return Object.keys(DATOS[m].resultados).map(Number).sort((a, b) => a - b);
+}
+
+function botones(contenedor, opciones, actual, alElegir) {
+  contenedor.replaceChildren();
+  for (const [valor, texto] of opciones) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = texto;
+    b.setAttribute('aria-pressed', String(valor === actual));
+    b.addEventListener('click', () => alElegir(valor));
+    contenedor.appendChild(b);
+  }
+}
+
+function colorBarra(pct) {
+  return pct >= 85 ? 'var(--rojo)' : pct >= 50 ? 'var(--ambar)' : 'var(--verde)';
+}
+
+function totalErrores(r) {
+  return Object.values(r.errores).reduce((a, b) => a + b, 0);
+}
+
+function diagnostico(m, r) {
+  const base = DATOS[m].resultados[cantidadesDe(m)[0]];
+  // La API suele estar ocupada porque espera a un servicio externo: se señala ese servicio como causa
+  // Si la API y Excel están saturados a la vez, la API está esperando a Excel: Excel es la causa
+  // (Telegram también aparece ocupado porque sus envíos quedan detenidos durante el bloqueo)
+  const [pctExterno, externo] = r.ocupacion.api >= 85 && r.ocupacion.excel >= 85
+    ? [r.ocupacion.excel, 'Excel (Drive)']
+    : COMPONENTES.slice(1).map(([c, n]) => [r.ocupacion[c], n]).sort((a, b) => b[0] - a[0])[0];
+  const cuelloTxt = pctExterno >= 50
+    ? `Cuello de botella: ${externo}, ocupado el ${num(Math.min(100, pctExterno), 0)} % del tiempo.`
+    : `Ningún servicio externo está saturado (máximo: ${externo}, ${num(pctExterno, 0)} %).`;
+  const errores = totalErrores(r);
+  // Toda solicitud que llegó a guardarse debería haberse notificado
+  const registradas = Math.max(r.exitosas, r.filas_guardadas);
+  const perdidasTg = registradas - r.telegram.solicitudes_notificadas;
+  const avisos = [];
+  if (r.filas_guardadas < r.exitosas) avisos.push(`Excel perdió ${r.exitosas - r.filas_guardadas} filas.`);
+  if (r.filas_guardadas > r.exitosas) avisos.push(`${r.filas_guardadas - r.exitosas} solicitudes respondieron con error pero sí se guardaron (riesgo de duplicados si el usuario reintenta).`);
+  if (r.errores.ConnectError) avisos.push(`${r.errores.ConnectError} conexiones fueron rechazadas: esas solicitudes nunca llegaron a la API.`);
+  if (perdidasTg > 0) avisos.push(`Telegram no notificó ${perdidasTg} de ${registradas} solicitudes.`);
+
+  if (errores > 0) {
+    const codigos = Object.entries(r.errores).map(([c, n]) => `${n} × ${c}`).join(', ');
+    return ['mal', `Se rompe. ${errores} de ${r.n} solicitudes fallaron (${codigos}). ${cuelloTxt} ${avisos.join(' ')}`];
+  }
+  if (avisos.length && r.filas_guardadas < r.exitosas) {
+    return ['mal', `Pérdida de datos. ${avisos.join(' ')} ${cuelloTxt}`];
+  }
+  // Se considera degradación si el tiempo se triplica respecto a la línea base y supera 2 s, o si pasa de 5 s
+  if (r !== base && ((r.tiempo_medio > base.tiempo_medio * 3 && r.tiempo_medio > 2) || r.tiempo_medio > 5)) {
+    const veces = r.tiempo_medio / base.tiempo_medio;
+    return ['warn', `Se degrada. El tiempo medio pasó de ${num(base.tiempo_medio, 2)} s a ${num(r.tiempo_medio, 2)} s (${num(veces)} veces más). ${cuelloTxt} ${avisos.join(' ')}`];
+  }
+  if (avisos.length) return ['warn', `Responde, pero con pérdidas. ${avisos.join(' ')} ${cuelloTxt}`];
+  if (r === base) return ['ok', `Línea base. Con ${r.n} solicitudes todo responde sin errores en ${num(r.tiempo_medio, 2)} s de media. ${cuelloTxt}`];
+  return ['ok', `Todo fluye. ${r.n} de ${r.n} exitosas; el tiempo medio pasó de ${num(base.tiempo_medio, 2)} s (línea base) a ${num(r.tiempo_medio, 2)} s. ${cuelloTxt}`];
+}
+
+function render() {
+  const cantidades = cantidadesDe(modo);
+  if (!cantidades.includes(cantidad)) cantidad = cantidades[0];
+  const r = DATOS[modo].resultados[cantidad];
+
+  botones(document.getElementById('modos'), modos.map(m => [m, NOMBRES_MODO[m] || m]), modo, m => { modo = m; render(); });
+  botones(document.getElementById('cantidades'), cantidades.map(n => [n, `${n} solicitudes`]), cantidad, n => { cantidad = n; render(); });
+
+  document.getElementById('t-medio').textContent = `${num(r.tiempo_medio, 2)} s`;
+  document.getElementById('t-max').textContent = `Máximo: ${num(r.tiempo_max, 2)} s`;
+  document.getElementById('exitosas').textContent = `${r.exitosas} / ${r.n}`;
+  document.getElementById('excel').textContent =
+    `Excel: ${r.filas_guardadas} filas · Telegram: ${r.telegram.solicitudes_notificadas} notificadas en ${r.telegram.mensajes_enviados} mensajes`;
+  const errores = totalErrores(r);
+  document.getElementById('errores').textContent = errores;
+  document.getElementById('codigos').textContent = errores
+    ? 'Códigos: ' + Object.entries(r.errores).map(([c, n]) => `${c} (${n})`).join(', ')
+    : 'Sin errores';
+
+  const barras = document.getElementById('barras');
+  barras.replaceChildren();
+  for (const [clave, nombre] of COMPONENTES) {
+    const pct = Math.min(100, r.ocupacion[clave]);
+    const etiqueta = document.createElement('div');
+    etiqueta.className = 'nombre';
+    etiqueta.textContent = nombre;
+    const pista = document.createElement('div');
+    pista.className = 'pista';
+    const relleno = document.createElement('div');
+    relleno.className = 'relleno';
+    relleno.style.width = `${Math.max(pct, 1)}%`;
+    relleno.style.background = colorBarra(pct);
+    pista.appendChild(relleno);
+    const valor = document.createElement('div');
+    valor.className = 'pct';
+    valor.textContent = `${num(pct, 0)} %`;
+    barras.append(etiqueta, pista, valor);
+  }
+
+  const [tipo, texto] = diagnostico(modo, r);
+  const mensaje = document.getElementById('mensaje');
+  mensaje.className = `mensaje ${tipo}`;
+  mensaje.textContent = texto;
+
+  const d = DATOS[modo];
+  document.getElementById('origen').textContent =
+    `Medición real contra ${d.url} · ${NOMBRES_MODO[modo] || modo} · ${new Date(d.fecha).toLocaleString('es')}`;
+}
+
+function comparacion() {
+  const tabla = document.getElementById('comparacion');
+  const cabecera = ['Solicitudes', 'Modo', 'Tiempo medio', 'Tiempo máximo', 'Exitosas', 'Con error', 'Filas en Excel', 'Telegram (notificadas / mensajes)', 'Ocupación API · Excel · Telegram'];
+  const filas = [cabecera];
+  const todas = [...new Set(modos.flatMap(cantidadesDe))].sort((a, b) => a - b);
+  for (const n of todas) {
+    for (const m of modos) {
+      const r = DATOS[m].resultados[n];
+      if (!r) continue;
+      const errores = totalErrores(r);
+      filas.push([
+        n, NOMBRES_MODO[m] || m, `${num(r.tiempo_medio, 2)} s`, `${num(r.tiempo_max, 2)} s`, `${r.exitosas} / ${n}`,
+        errores ? `${errores} (${Object.keys(r.errores).join(', ')})` : '0',
+        r.filas_guardadas, `${r.telegram.solicitudes_notificadas} / ${r.telegram.mensajes_enviados}`,
+        COMPONENTES.map(([c]) => `${num(Math.min(100, r.ocupacion[c]), 0)} %`).join(' · '),
+      ]);
+    }
+  }
+  tabla.replaceChildren();
+  filas.forEach((fila, i) => {
+    const tr = document.createElement('tr');
+    for (const valor of fila) {
+      const celda = document.createElement(i === 0 ? 'th' : 'td');
+      celda.textContent = valor;
+      tr.appendChild(celda);
+    }
+    tabla.appendChild(tr);
+  });
+}
+
+const COLORES_MODO = { directo: '#ef5b5b', cola: '#4cc07a' };
+
+function grafico() {
+  const svg = document.getElementById('grafico');
+  const todas = [...new Set(modos.flatMap(cantidadesDe))].sort((a, b) => a - b);
+  const ancho = 1000, alto = 340, izq = 56, abajo = 40, arriba = 28;
+  const maximo = Math.max(...modos.flatMap(m => todas.map(n => DATOS[m].resultados[n]?.tiempo_medio || 0)));
+  const paso = maximo > 40 ? 10 : maximo > 10 ? 5 : maximo > 4 ? 1 : 0.5;
+  const tope = Math.ceil(maximo / paso) * paso || 1;
+  const y = v => arriba + (alto - arriba - abajo) * (1 - v / tope);
+  const grupo = (ancho - izq) / todas.length;
+  const barra = Math.min(70, (grupo * 0.7) / modos.length);
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, texto) => {
+    const e = document.createElementNS(ns, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (texto !== undefined) e.textContent = texto;
+    svg.appendChild(e);
+  };
+  svg.setAttribute('viewBox', `0 0 ${ancho} ${alto}`);
+  svg.replaceChildren();
+  for (let v = 0; v <= tope + 1e-9; v += paso) {
+    el('line', { x1: izq, x2: ancho, y1: y(v), y2: y(v), stroke: '#2f3b5c' });
+    el('text', { x: izq - 8, y: y(v) + 4, 'text-anchor': 'end' }, `${num(v, paso < 1 ? 1 : 0)} s`);
+  }
+  todas.forEach((n, i) => {
+    const centro = izq + grupo * (i + 0.5);
+    el('text', { x: centro, y: alto - 12, 'text-anchor': 'middle' }, `${n} solicitudes`);
+    modos.forEach((m, j) => {
+      const r = DATOS[m].resultados[n];
+      if (!r) return;
+      const x = centro - (barra * modos.length) / 2 + j * barra + 3;
+      el('rect', { x, y: y(r.tiempo_medio), width: barra - 6, height: Math.max(1, y(0) - y(r.tiempo_medio)), rx: 4, fill: COLORES_MODO[m] || '#8aa0d8' });
+      el('text', { x: x + (barra - 6) / 2, y: y(r.tiempo_medio) - 6, 'text-anchor': 'middle', class: 'valor' }, `${num(r.tiempo_medio, 2)} s`);
+    });
+  });
+  const leyenda = document.getElementById('leyenda');
+  leyenda.replaceChildren(...modos.map(m => {
+    const s = document.createElement('span');
+    const i = document.createElement('i');
+    i.style.background = COLORES_MODO[m] || '#8aa0d8';
+    s.append(i, NOMBRES_MODO[m] || m);
+    return s;
+  }));
+}
+
+// ?solo=panel-grafico muestra un único panel (útil para capturas del informe)
+const solo = new URLSearchParams(location.search).get('solo');
+if (solo) {
+  for (const e of document.querySelectorAll('main > *')) if (e.id !== solo) e.style.display = 'none';
+}
+
+// Permite abrir una vista concreta, por ejemplo reporte.html#cola-100
+const [hashModo, hashN] = decodeURIComponent(location.hash.slice(1)).split('-');
+if (DATOS[hashModo]) modo = hashModo;
+if (hashN) cantidad = Number(hashN);
+
+if (modos.length) {
+  render();
+  comparacion();
+  grafico();
+} else {
+  document.getElementById('origen').textContent = 'Aún no hay resultados. Ejecuta pruebas/prueba_carga.py.';
+}
+</script>
+</body>
+</html>

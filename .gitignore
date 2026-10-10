@@ -1,0 +1,22 @@
+# Credenciales: nunca se suben a GitHub
+.env
+credenciales.json
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Archivos generados por la app
+fallidos.jsonl
+resultados_*.csv
+resultados_*.html
+
+# Informe de la actividad (se entrega aparte)
+informe/
+
+# Capturas y estado temporal de las pruebas de carga
+pruebas/capturas/
+pruebas/resultados/fase_actual.txt

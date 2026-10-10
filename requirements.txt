@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-dotenv
+httpx
+openpyxl
+pydantic
+google-api-python-client
+google-auth
+tzdata

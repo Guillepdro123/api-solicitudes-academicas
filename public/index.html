@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitudes Académicas</title>
+    <!-- Tailwind CSS desde CDN para estilos limpios, modernos y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/public/css/style.css">
+</head>
+<body class="bg-gray-100 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-6 flex flex-wrap items-end justify-between gap-2">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Solicitudes Académicas</h1>
+                <p class="text-sm text-gray-500 mt-1">Registra, consulta y actualiza solicitudes. Se guardan en Excel y se notifican por Telegram.</p>
+            </div>
+            <span id="modoBadge" class="hidden text-xs font-medium rounded-full px-3 py-1 bg-indigo-100 text-indigo-800"></span>
+        </header>
+
+        <div class="grid gap-6 md:grid-cols-[360px_1fr] items-start">
+
+            <!-- Registrar -->
+            <section class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Nueva solicitud</h2>
+
+                <form id="solicitudForm" class="space-y-4">
+                    <!-- Mensaje de Alerta -->
+                    <div id="alertMessage" class="hidden rounded-md p-4 text-sm font-medium"></div>
+
+                    <div>
+                        <label for="estudiante" class="block text-sm font-medium text-gray-700">Estudiante</label>
+                        <input type="text" id="estudiante" name="estudiante" required minlength="3" maxlength="100"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            placeholder="Ej. Juan Pérez">
+                    </div>
+
+                    <div>
+                        <label for="tipo" class="block text-sm font-medium text-gray-700">Tipo de solicitud</label>
+                        <select id="tipo" name="tipo" required
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="">Seleccione un tipo...</option>
+                            <option>Certificado</option>
+                            <option>Constancia</option>
+                            <option>Homologación</option>
+                            <option>Cancelación de asignatura</option>
+                            <option>Reintegro</option>
+                            <option>Otro</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+                        <textarea id="descripcion" name="descripcion" rows="4" required minlength="5" maxlength="500"
+                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            placeholder="Describe brevemente tu solicitud"></textarea>
+                    </div>
+
+                    <button type="submit" id="submitBtn"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                        Registrar solicitud
+                    </button>
+                </form>
+            </section>
+
+            <!-- Consultar y actualizar -->
+            <section class="bg-white rounded-xl shadow-lg p-6 min-w-0">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">Solicitudes registradas</h2>
+                    <button type="button" id="refreshBtn"
+                        class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Actualizar lista</button>
+                </div>
+
+                <div id="tableMessage" class="text-sm text-gray-500 py-6 text-center">Cargando...</div>
+
+                <div class="overflow-x-auto">
+                    <table id="tabla" class="hidden min-w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-gray-500 border-b">
+                                <th class="py-2 pr-3 font-medium">N°</th>
+                                <th class="py-2 pr-3 font-medium">ID</th>
+                                <th class="py-2 pr-3 font-medium">Estudiante</th>
+                                <th class="py-2 pr-3 font-medium">Tipo</th>
+                                <th class="py-2 pr-3 font-medium">Descripción</th>
+                                <th class="py-2 pr-3 font-medium">Fecha</th>
+                                <th class="py-2 font-medium">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaBody" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="/public/js/app.js"></script>
+</body>
+</html>
